@@ -5,7 +5,12 @@ const client = new Client({intents: [GatewayIntentBits.Guilds, GatewayIntentBits
 const fs = require('fs');
 require('dotenv').config()
 
+
+
 let processName = 'GenshinImpact.exe';
+let DiscordAlertChannelID = '1023580463048175726';
+
+
 let lastChange = {
     state: null,
     time: null
@@ -35,7 +40,7 @@ const isRunning = (query, cb) => {
 
 client.once('ready', () => {
     console.log('Ready!');
-    let alertChannel = client.channels.cache.get('1023580463048175726');
+    let alertChannel = client.channels.cache.get(DiscordAlertChannelID);
 
     setInterval(() => {
         isRunning(processName, (state) => {
