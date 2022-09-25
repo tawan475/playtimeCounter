@@ -1,6 +1,5 @@
 const exec = require('child_process').exec;
 const { Client, GatewayIntentBits } = require('discord.js');
-const { fstat } = require('fs');
 const client = new Client({intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.DirectMessages]});
 const fs = require('fs');
 require('dotenv').config()
