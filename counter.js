@@ -33,7 +33,7 @@ const isRunning = (query, cb) => {
         default:
             break;
     }
-    exec(cmd, (err, stdout, stderr) => {
+    exec(cmd, {windowsHide: true}, (err, stdout, stderr) => {
         cb(stdout.toLowerCase().indexOf(query.toLowerCase()) > -1);
     });
 }
