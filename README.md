@@ -17,6 +17,14 @@ if you don't have pm2 install it with\
 `pm2 save`\
 `pm2 startup`
 
+## Config
+Change `processToCount` to track your process\
+Change `DiscordAlertChannelID` to change your Discord alert channel ID\
+Add `DISCORDTOKEN` to .env to add your Discord bot's token\
+And then restart!\
+`pm2 restart counter`
+
+
 
 ## Helping by committing!
 wanna add cool feature? commit it!
