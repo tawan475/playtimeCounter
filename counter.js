@@ -6,14 +6,11 @@ require('dotenv').config()
 
 
 
-let processName = 'GenshinImpact.exe';
+let processToCount = ['GenshinImpact.exe', 'Code.exe'];
 let DiscordAlertChannelID = '1023580463048175726';
 
 
-let lastChange = {
-    state: null,
-    time: null
-};
+let lastChange = {};
 let collectiveTime = require('./collectiveTime.json');
 
 const isRunning = (query, cb) => {
@@ -21,19 +18,25 @@ const isRunning = (query, cb) => {
     let cmd = '';
     switch (platform) {
         case 'win32':
-            cmd = `tasklist /FI "IMAGENAME eq ${query}" /FO CSV`;
+            cmd = `tasklist`;
             break;
         case 'darwin':
-            cmd = `ps -ax | grep ${query}`;
+            cmd = `ps -ax`;
             break;
         case 'linux':
-            cmd = `ps -A | grep ${query}`;
+            cmd = `ps -A`;
             break;
         default:
             break;
     }
     exec(cmd, {windowsHide: true}, (err, stdout, stderr) => {
-        cb(stdout.toLowerCase().indexOf(query.toLowerCase()) > -1);
+        let processRunning = processToCount.map(toCheck => {
+            return {
+                name: toCheck,
+                state: stdout.toLowerCase().indexOf(toCheck.toLowerCase()) > -1
+            }
+        })
+        cb(processRunning);
     });
 }
 
@@ -42,28 +45,38 @@ client.once('ready', () => {
     let alertChannel = client.channels.cache.get(DiscordAlertChannelID);
 
     setInterval(() => {
-        isRunning(processName, (state) => {
-            if (lastChange.state !== state) { // check for status change
-                let alertMessage = '';
-                let now = Date.now();
-                if (state === true) { // if it is opened
-                    alertMessage += `${processName} is opened`;
-                    lastChange.time = now;
-                } else if (state === false && lastChange.state === true) {
-                    alertMessage += `${processName} is closed`;
-                    let openedFor = now - lastChange.time;
-                        if (!collectiveTime[processName]) collectiveTime[processName] = 0;
-                        collectiveTime[processName] += openedFor;
-                        alertMessage += `, opened for \`${openedFor}\` ms\r\n`;
-                        alertMessage += `since \`${lastChange.time}\` to \`${now}\`\r\n`;
-                        alertMessage += `collective time of \`${collectiveTime[processName]}\` ms`;
-                }
-                alertChannel.send(alertMessage);
+        isRunning(processToCount, (processStates) => {
+            processStates.forEach((processState) => {
+                let lastState = lastChange[processState.name] ? lastChange[processState.name] : {};
+                if (lastState.state !== processState.state) { // check for status change
+                    let alertMessage = '';
+                    let now = Date.now();
+                    if (processState.state === true) { // if it is opened
+                        alertMessage += `${processState.name} is opened`;
+                        lastState.time = now;
 
-                lastChange.state = state;
-                lastChange.time = now;
-                fs.writeFileSync('./collectiveTime.json', JSON.stringify(collectiveTime, null, 2));
-            }
+                        alertChannel.send(alertMessage);
+                        console.log(alertMessage);
+                    } else if (processState.state === false && lastState.state === true) {
+                        alertMessage += `${processState.name} is closed`;
+
+                        let openedFor = now - lastState.time;
+                        if (!collectiveTime[processState.name]) collectiveTime[processState.name] = 0;
+                        collectiveTime[processState.name] += openedFor;
+
+                        alertMessage += `, opened for \`${openedFor}\` ms\r\n`;
+                        alertMessage += `since \`${lastState.time}\` to \`${now}\`\r\n`;
+                        alertMessage += `collective time of \`${collectiveTime[processState.name]}\` ms`;
+                        alertChannel.send(alertMessage);
+                        console.log(alertMessage);
+                    }
+
+                    lastState.state = processState.state;
+                    lastState.time = now;
+                    lastChange[processState.name] = lastState
+                    fs.writeFileSync('./collectiveTime.json', JSON.stringify(collectiveTime, null, 2));
+                }
+            })
         })
     }, 1000);
 });
