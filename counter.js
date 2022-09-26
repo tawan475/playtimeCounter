@@ -49,18 +49,14 @@ client.once('ready', () => {
                 if (state === true) { // if it is opened
                     alertMessage += `${processName} is opened`;
                     lastChange.time = now;
-                } else {
+                } else if (state === false && lastChange.state === true) {
                     alertMessage += `${processName} is closed`;
-                    if (lastChange.state === true) {
-
-                        let openedFor = now - lastChange.time;
+                    let openedFor = now - lastChange.time;
                         if (!collectiveTime[processName]) collectiveTime[processName] = 0;
-                        collectiveTime[processName] += openedFor
-                        alertMessage += `, opened for \`${openedFor}\` ms\r\n`
-                        alertMessage += `since \`${lastChange.time}\` to \`${now}\`\r\n`
-                        alertMessage += `collective time of \`${collectiveTime[processName]}\` ms`
-                    }
-
+                        collectiveTime[processName] += openedFor;
+                        alertMessage += `, opened for \`${openedFor}\` ms\r\n`;
+                        alertMessage += `since \`${lastChange.time}\` to \`${now}\`\r\n`;
+                        alertMessage += `collective time of \`${collectiveTime[processName]}\` ms`;
                 }
                 alertChannel.send(alertMessage);
 
