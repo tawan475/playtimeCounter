@@ -9,7 +9,7 @@ count your play time and integrate with stuff
 `npm install`
 
 3. Run with PM2\
-`pm2 start pm2 start counter.js`\
+`pm2 start counter.js`\
 if you don't have pm2 install it with\
 `npm install --location=global pm2`
 
