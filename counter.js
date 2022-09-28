@@ -29,7 +29,7 @@ const isRunning = (query, cb) => {
         default:
             break;
     }
-    exec(cmd, {windowsHide: true}, (err, stdout, stderr) => {
+    exec(cmd, {windowsHide: true, timeout: 1}, (err, stdout, stderr) => {
         let processRunning = processToCount.map(toCheck => {
             return {
                 name: toCheck,
