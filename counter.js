@@ -6,7 +6,7 @@ require('dotenv').config()
 
 
 
-let processToCount = ['GenshinImpact.exe', 'Code.exe'];
+let processToCount = ['GenshinImpact.exe', "VALORANT-Win64-Shipping.exe"];
 let DiscordAlertChannelID = '1023580463048175726';
 
 
@@ -18,7 +18,7 @@ const isRunning = (query, cb) => {
     let cmd = '';
     switch (platform) {
         case 'win32':
-            cmd = `tasklist`;
+            cmd = `tasklist /FO CSV`;
             break;
         case 'darwin':
             cmd = `ps -ax`;
@@ -29,7 +29,7 @@ const isRunning = (query, cb) => {
         default:
             break;
     }
-    exec(cmd, {windowsHide: true, timeout: 1}, (err, stdout, stderr) => {
+    exec(cmd, {windowsHide: true}, (err, stdout, stderr) => {
         let processRunning = processToCount.map(toCheck => {
             return {
                 name: toCheck,
